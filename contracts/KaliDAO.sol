@@ -3,7 +3,7 @@
 pragma solidity >=0.8.4;
 
 /// @notice Modern and gas-optimized ERC-20 + EIP-2612 implementation with COMP-style governance and pausing.
-/// @author Modified from RariCapital (https://github.com/Rari-Capital/solmate/blob/main/src/erc20/ERC20.sol)
+/// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/erc20/ERC20.sol)
 /// License-Identifier: AGPL-3.0-only
 abstract contract KaliDAOtoken {
     /*///////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ abstract contract KaliDAOtoken {
     bool public paused;
 
     bytes32 public constant DELEGATION_TYPEHASH = 
-        keccak256('Delegation(address delegatee,uint256 nonce,uint256 expiry)');
+        keccak256('Delegation(address delegatee,uint256 nonce,uint256 deadline)');
 
     mapping(address => address) internal _delegates;
 
@@ -411,6 +411,17 @@ abstract contract KaliDAOtoken {
         _moveDelegates(delegates(from), address(0), amount);
 
         emit Transfer(from, address(0), amount);
+    }
+    
+    function burn(uint256 amount) public virtual {
+        _burn(msg.sender, amount);
+    }
+
+    function burnFrom(address from, uint256 amount) public virtual {
+        if (allowance[from][msg.sender] != type(uint256).max) 
+            allowance[from][msg.sender] -= amount;
+
+        _burn(from, amount);
     }
 
     /*///////////////////////////////////////////////////////////////
